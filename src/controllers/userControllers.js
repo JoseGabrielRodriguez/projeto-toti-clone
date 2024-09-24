@@ -29,11 +29,10 @@ export const getUserByID = async (req, res) => {
   }
 }
 
-
 export const createUser = async (req, res) => {
   try {
     const { name, email, description, jobTitle, roleId } = req.body
-    const user_photo = req.file ? req.file.filename : null 
+    const user_photo = req.file ? req.file.filename : null
 
     const result = await User.create(name, email, description, jobTitle, roleId, user_photo)
     res.json({ message: 'Usuário criado com sucesso', userId: { name, email, description, jobTitle, roleId, user_photo } })
@@ -83,7 +82,7 @@ export const deleteUser = async (req, res) => {
     // Se houver uma foto associada, exclua-a
     if (user.user_photo) {
       const photoPath = path.join(userPhotosPath, user.user_photo)
-      
+
       // Verifique se o arquivo existe e exclua-o
       if (fs.existsSync(photoPath)) { // verificar oi motivo de não funcioanr
         fs.unlinkSync(photoPath)
@@ -92,6 +91,9 @@ export const deleteUser = async (req, res) => {
 
     // Delete o usuário do banco de dados
     const result = await User.delete(id)
+    if (!result) {
+      return res.status(404).json({ error: 'Usuario não encontrada' })
+    }
     res.json({ message: 'Usuário deletado com sucesso', userId: id })
   } catch (error) {
     res.status(500).json({ error: 'Erro ao deletar usuário' })
